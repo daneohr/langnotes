@@ -9,6 +9,7 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
+	system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
@@ -20,6 +21,8 @@
             cargo
             nodejs
             pnpm
+
+	    gsettings-desktop-schemas
           ];
 
           # System libraries that your app links against (Tauri dependencies)
@@ -35,6 +38,8 @@
             libsoup_3
           ];
 
+          GSETTINGS_SCHEMA_DIR = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
+
           shellHook = ''
             # Ensures dynamic linker finds the GUI libraries at runtime
             export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [
@@ -44,7 +49,7 @@
               pkgs.openssl
               pkgs.libxkbcommon
             ]}:$LD_LIBRARY_PATH"
-            
+
             echo "Tauri Dev Environment Loaded Successfully!"
           '';
         };

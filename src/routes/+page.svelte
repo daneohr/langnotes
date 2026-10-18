@@ -44,7 +44,7 @@
 }
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Monospace;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
