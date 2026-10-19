@@ -31,8 +31,6 @@
  .container {
      text-align: left;
      float: left;
-     /*padding: 1rem;*/
-     /*margin: 0;*/
      padding: 0;
      margin: 0;
      display: flex;

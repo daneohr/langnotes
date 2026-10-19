@@ -1,31 +1,43 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
+ import { invoke } from "@tauri-apps/api/core";
+ import { open } from "@tauri-apps/plugin-dialog"
 
-  let name = $state("");
-  let greetMsg = $state("");
+ async function getFile() {
+     const abc = await open({
+         multiple: false,
+         directory: false,
+     });
 
-  async function greet(event: Event) {
-    event.preventDefault();
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("greet", { name });
-  }
+     console.log(abc);
+ }
+
+ async function handleFileChange(event: Event) {
+     const target = event.target as HTMLInputElement;
+     if (!target.files || target.files.length == 0) return;
+
+     const file = target.files[0];
+
+     console.log("Selected file: ", file.name);
+
+     try {
+         const response = await invoke('load_file', { filepath: file.name });
+         console.log(response);
+     } catch(error) {
+         console.log("Rust error:", error);
+     }
+ }
+
 </script>
 
 <main class="container">
-<h1>Langnote: Language learning notes</h1>
-<a href="/edit">Edit</a>
-<input type="file">
+    <h1>Langnote: Language learning notes</h1>
+    <a href="/edit">Create</a>
+    <button on:click={getFile}>
+        Open file
+    </button>
 </main>
 
 <style>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.svelte-kit:hover {
-  filter: drop-shadow(0 0 2em #ff3e00);
-}
-
 :root {
   font-family: Monospace;
   font-size: 16px;
@@ -51,16 +63,6 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
 
 .row {
   display: flex;
@@ -83,17 +85,14 @@ h1 {
 
 input,
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #ffffff;
+    background-color: #2f2f2f;
+    outline: none;
+ }
 
 button {
   cursor: pointer;
@@ -107,32 +106,10 @@ button:active {
   background-color: #e8e8e8;
 }
 
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
     background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
   }
 }
 
