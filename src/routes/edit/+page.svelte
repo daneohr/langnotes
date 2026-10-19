@@ -1,6 +1,6 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
- import Editor from "./Editor.svelte";
+ import Editor from "../../Editor.svelte";
  // vars
  let title = $state("");
  let subtext = $state("");
@@ -25,11 +25,17 @@
 </main>
 
 <style>
+
  .container {
      text-align: left;
      float: left;
-     padding: 1rem;
+     /*padding: 1rem;*/
+     /*margin: 0;*/
+     padding: 0;
      margin: 0;
+     display: flex;
+     width: 100vw;
+     height: 100vh;
 
  }
  .body-text {
@@ -61,6 +67,12 @@
      float: left;
      margin: 0;
      padding: 0;
+ }
+
+ .editor-pane {
+     flex: 1;
+     border-radius: 0;
+     background-color: #2f2f2f;
  }
 
 </style>
