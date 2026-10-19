@@ -4,7 +4,7 @@
  // vars
  let title = $state("");
  let subtext = $state("");
- let doc = '#Press `i` to begin editing...';
+ let doc = '';
 
  async function saveTitle(event: Event) {
      event.preventDefault();
@@ -19,7 +19,7 @@
     <form onsubmit={saveTitle}>
         <input class="title" placeholder="Title" bind:value={title} />
     </form>
-    <div class="editor-pane">
+    <div class="editor-pane" onfocus={editorFocus}>
         <Editor doc={doc} onChange={docChange} />
     </div>
 </main>

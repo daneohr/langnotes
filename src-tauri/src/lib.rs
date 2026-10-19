@@ -2,6 +2,7 @@
 mod commands;
 
 use commands::edit::save_title;
+use commands::edit::load_file;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -14,8 +15,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             greet,
-            save_title
+            save_title,
+            load_file
         ])
-        .run(tauri::generate_context!())
+        .run(tauri::generate_context!()
         .expect("error while running tauri application");
 }
