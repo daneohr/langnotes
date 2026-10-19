@@ -1,12 +1,17 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
+ import Editor from "./Editor.svelte";
  // vars
  let title = $state("");
  let subtext = $state("");
+ let doc = '#Press `i` to begin editing...';
 
  async function saveTitle(event: Event) {
      event.preventDefault();
      subtext = await invoke("save_title", {title});
+ }
+ async function docChange(newText: string) {
+     doc=newText;
  }
 </script>
 
@@ -14,7 +19,9 @@
     <form onsubmit={saveTitle}>
         <input class="title" placeholder="Title" bind:value={title} />
     </form>
-    <textarea class="body-text" type="text" placeholder="Start typing..."></textarea>
+    <div class="editor-pane">
+        <Editor doc={doc} onChange={docChange} />
+    </div>
 </main>
 
 <style>
