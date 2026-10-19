@@ -14,6 +14,7 @@
 <main class="container">
 <h1>Langnote: Language learning notes</h1>
 <a href="/edit">Edit</a>
+<input type="file">
 </main>
 
 <style>

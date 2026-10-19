@@ -18,6 +18,6 @@ pub fn run() {
             save_title,
             load_file
         ])
-        .run(tauri::generate_context!()
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

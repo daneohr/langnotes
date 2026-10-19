@@ -4,6 +4,8 @@
  // vars
  let title = $state("");
  let subtext = $state("");
+
+ // preload with data:
  let doc = '';
 
  async function saveTitle(event: Event) {
