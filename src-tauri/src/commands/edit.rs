@@ -9,21 +9,19 @@ pub fn save_title(title: &str) -> String {
 
 
 #[tauri::command]
-pub fn load_file(filepath: String) -> String{
+pub fn load_file(filepath: String) -> Result<String, String>{
     // create path
     let path = Path::new(&filepath);
     let display = path.display();
 
     // open in read-only
-    let mut file = match File::open(&path) {
-        Err(e) => panic!("Error opening {}: {}", display, e),
-        Ok(f) => f,
-    };
+    let mut file = File::open(&path)
+        .map_err(|e| format!("Error opening {}: {}", display, e))?;
 
     // read contents
     let mut contents = String::new();
-    match file.read_to_string(&mut contents) {
-        Err(e) => panic!("Couldn't read file {}: {}", display, e),
-        Ok(_) => contents,
-    }
+    file.read_to_string(&mut contents)
+        .map_err(|e| format!("Couldn't read file {}: {}", display, e))?;
+
+    Ok(contents)
 }
