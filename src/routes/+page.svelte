@@ -20,16 +20,6 @@
      }
  }
 
-// async function handleFileChange(event: Event) {
-//     const target = event.target as HTMLInputElement;
-//     if (!target.files || target.files.length == 0) return;
-//
-//     const file = target.files[0];
-//
-//     console.log("Selected file: ", file.name);
-//
-//     }
-
  async function newFile() {
     docContent.set('');
     goto('/edit');

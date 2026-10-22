@@ -3,6 +3,8 @@
  import { EditorState } from "@codemirror/state";
  import { EditorView, basicSetup } from "codemirror";
  import { vim } from "@replit/codemirror-vim";
+ // depricated but what else is there tbh..:
+ import { markdown } from "@codemirror/lang-markdown";
 
  export let doc: string = '';
  export let onChange: (text: string) => void = () => {};
