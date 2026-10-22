@@ -23,5 +23,6 @@ pub fn load_file(filepath: String) -> Result<String, String>{
     file.read_to_string(&mut contents)
         .map_err(|e| format!("Couldn't read file {}: {}", display, e))?;
 
+    //TODO: LOAD EDIT PAGE WITH FILE CONTENTS
     Ok(contents)
 }

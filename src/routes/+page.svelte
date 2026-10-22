@@ -1,14 +1,21 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
- import { open } from "@tauri-apps/plugin-dialog"
+ import { open } from "@tauri-apps/plugin-dialog";
+ import { docContent } from "../stores/docStore.ts";
+ import { push } from "svelte-spa-router";
 
  async function getFile() {
-     const abc = await open({
-         multiple: false,
-         directory: false,
-     });
+     try {
+         const filepath = await open({
+             multiple: false,
+             directory: false,
+         });
 
-     console.log(abc);
+         const response = await invoke('load_file', { filepath: filepath });
+
+     } catch(error) {
+         console.log("Rust error:", error);
+     }
  }
 
  async function handleFileChange(event: Event) {
@@ -19,13 +26,7 @@
 
      console.log("Selected file: ", file.name);
 
-     try {
-         const response = await invoke('load_file', { filepath: file.name });
-         console.log(response);
-     } catch(error) {
-         console.log("Rust error:", error);
      }
- }
 
 </script>
 
@@ -35,6 +36,7 @@
     <button on:click={getFile}>
         Open file
     </button>
+    <p>{contents}</p>
 </main>
 
 <style>
