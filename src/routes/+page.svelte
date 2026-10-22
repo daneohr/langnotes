@@ -1,8 +1,8 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
  import { open } from "@tauri-apps/plugin-dialog";
- import { docContent } from "../stores/docStore.ts";
- import { push } from "svelte-spa-router";
+ import { docContent } from "../stores/docStore";
+ import { goto } from '$app/navigation';
 
  async function getFile() {
      try {
@@ -12,31 +12,37 @@
          });
 
          const response = await invoke('load_file', { filepath: filepath });
+         docContent.set(response);
+         goto('/edit');
 
      } catch(error) {
          console.log("Rust error:", error);
      }
  }
 
- async function handleFileChange(event: Event) {
-     const target = event.target as HTMLInputElement;
-     if (!target.files || target.files.length == 0) return;
+// async function handleFileChange(event: Event) {
+//     const target = event.target as HTMLInputElement;
+//     if (!target.files || target.files.length == 0) return;
+//
+//     const file = target.files[0];
+//
+//     console.log("Selected file: ", file.name);
+//
+//     }
 
-     const file = target.files[0];
-
-     console.log("Selected file: ", file.name);
-
-     }
+ async function newFile() {
+    docContent.set('');
+    goto('/edit');
+ }
 
 </script>
 
 <main class="container">
     <h1>Langnote: Language learning notes</h1>
-    <a href="/edit">Create</a>
+    <button on:click={newFile}>Create</button>
     <button on:click={getFile}>
         Open file
     </button>
-    <p>{contents}</p>
 </main>
 
 <style>
@@ -63,12 +69,6 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
-}
-
-
-.row {
-  display: flex;
-  justify-content: center;
 }
 
 a {

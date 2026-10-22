@@ -1,12 +1,23 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
  import Editor from "../../Editor.svelte";
+ import { docContent } from "../../stores/docStore";
+ import { onDestroy } from "svelte";
+
  // vars
  let title = $state("");
  let subtext = $state("");
 
  // preload with data:
  let doc = '';
+
+ const unsubscribe = docContent.subscribe((value) => {
+     doc = value;
+ });
+
+ onDestroy(() => {
+     unsubscribe();
+ });
 
  async function saveTitle(event: Event) {
      event.preventDefault();
