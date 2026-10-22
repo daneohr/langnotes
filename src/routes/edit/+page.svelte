@@ -8,7 +8,7 @@
  // vars
  let title = $state("");
  let file_extension = $state("");
- let subtext = $state("");
+ let debug_str = $state("");
 
  // preload with data:
  let doc = $docContent;
@@ -34,7 +34,7 @@
 
  async function saveTitle(event: Event) {
      event.preventDefault();
-     subtext = await invoke("save_title", {title});
+     debug_str = await invoke("save_title", {title});
  }
 
  async function docChange(newText: string) {
@@ -44,11 +44,17 @@
 </script>
 
 <main class="container">
-    <span>(.{file_extension})</span>
-    <form onsubmit={saveTitle}>
-        <input class="title" placeholder="Title" bind:value={title} />
-        <p>{subtext}</p>
-    </form>
+    <div class="header-area">
+      <form onsubmit={saveTitle} class="title-form">
+          <div class="input-wrapper">
+            <input class="title" placeholder="Title" bind:value={title} />
+            <span class="file-ext">.{file_extension}</span>
+          </div>
+      </form>
+      {#if debug_str}
+          <p class="debug-text">Debug: {debug_str}</p>
+      {/if}
+    </div>
     <div class="editor-pane" onfocus={editorFocus}>
         <Editor doc={doc} onChange={docChange} />
     </div>
@@ -59,65 +65,69 @@
  .container {
      text-align: left;
      float: left;
-     padding: 0;
      margin: 0;
      display: flex;
      width: 100vw;
      height: 100vh;
+     flex-direction: column;
+     box-sizing: border-box;
+     gap: 12px;
  }
 
- .body-text {
-     background: none;
-     font-size: 14px;
-     background: none;
-     border: none;
-     box-shadow: none;
-     text-align: left;
-     float: left;
-     padding: 0;
-     padding-bottom: 0.5rem;
+ .header-area {
+     display: flex;
+     flex-direction: column;
+ }
+
+ .title-form {
+     display: flex;
+     align-items: baseline;
+     gap: 8px;
      margin: 0;
+     padding: 0;
+     background: transparent;
+     height: auto;
+ }
+
+ .input-wrapper {
+     display: inline-flex;
+     align-items: baseline;
+     background: transparent;
+
  }
 
  .title {
      color: #ffffff;
      font-weight: 600;
-     font-size: 18px;
+     font-size: 1.5rem;
      background: none;
      border: none;
+     outline: none;
      box-shadow: none;
      text-align: left;
-     float: left;
      padding: 0;
-     padding-bottom: 0.5rem;
      margin: 0;
+
+     field-sizing: content;
+     min-width: 60px;
  }
 
- form {
-     display: inline;
-     text-align: left;
-     float: left;
-     margin: 0;
-     padding: 0;
-     background-color: red;
-     height: 0;
+ .file-ext {
+     color: #777777;
+     font-size: 0.8rem;
+     font-weight: 500;
+     user-select: none;
+ }
 
+ .debug-text {
+     color: #ffff00;
  }
 
  .editor-pane {
      flex: 1;
+     width: 100%;
      border-radius: 0;
      background-color: #2f2f2f;
  }
 
- span {
-     display: inline;
-     padding: 0;
-     margin: 0;
-     margin-left: .5rem;
-     margin-right: .5rem;
-     border-radius: 4px;
-     height: 28px;
-     font-size: 14px;
- }
 </style>
