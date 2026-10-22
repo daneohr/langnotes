@@ -25,7 +25,7 @@
      final_title = final_title.substring(0, final_title.indexOf("."));
 
      title = final_title;
-     file_extension = file_ext;
+     file_extension = file_ext.toUpperCase();
  }
 
  async function save(path: string) {
@@ -44,9 +44,9 @@
 </script>
 
 <main class="container">
+    <span>(.{file_extension})</span>
     <form onsubmit={saveTitle}>
         <input class="title" placeholder="Title" bind:value={title} />
-        <span>.{file_extension}</span>
         <p>{subtext}</p>
     </form>
     <div class="editor-pane" onfocus={editorFocus}>
@@ -64,7 +64,6 @@
      display: flex;
      width: 100vw;
      height: 100vh;
-
  }
 
  .body-text {
@@ -95,10 +94,14 @@
  }
 
  form {
+     display: inline;
      text-align: left;
      float: left;
      margin: 0;
      padding: 0;
+     background-color: red;
+     height: 0;
+
  }
 
  .editor-pane {
@@ -107,4 +110,14 @@
      background-color: #2f2f2f;
  }
 
+ span {
+     display: inline;
+     padding: 0;
+     margin: 0;
+     margin-left: .5rem;
+     margin-right: .5rem;
+     border-radius: 4px;
+     height: 28px;
+     font-size: 14px;
+ }
 </style>
