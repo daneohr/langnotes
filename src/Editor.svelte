@@ -3,8 +3,10 @@
  import { EditorState } from "@codemirror/state";
  import { EditorView, basicSetup } from "codemirror";
  import { vim } from "@replit/codemirror-vim";
+
  // depricated but what else is there tbh..:
  import { markdown } from "@codemirror/lang-markdown";
+
 
  export let doc: string = '';
  export let onChange: (text: string) => void = () => {};
@@ -51,12 +53,14 @@
 
          // visual mode selection when focused
          "&.cm-focused .cm-selectionBackground, ::selection": {
-             backgroundColor: "#333333 !important"
+             // backgroundColor: "#333333 !important"
+             backgroundColor: "#ff0000 !important"
          },
 
          //visual mode selection when not focused
          ".cm-selectionBackground": {
-             backgroundColor: "#222222 !important"
+             //backgroundColor: "#222222 !important"
+             backgroundColor: "#00ff00 !important"
          },
 
          ".cm-vim-panel": {
@@ -74,6 +78,7 @@
          extensions: [
              basicSetup,
              vim(),
+             markdown(),
              editorTheme,
              EditorView.updateListener.of((update) => {
                  if (update.docChanged) {

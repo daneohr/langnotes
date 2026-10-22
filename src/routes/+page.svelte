@@ -1,11 +1,12 @@
 <script lang="ts">
  import { invoke } from "@tauri-apps/api/core";
  import { open } from "@tauri-apps/plugin-dialog";
- import { docContent } from "../stores/docStore";
+ import { docContent, docPath } from "../stores/docStore";
  import { goto } from '$app/navigation';
 
  async function getFile() {
      try {
+         // Tauri-specific open command to get files
          const filepath = await open({
              multiple: false,
              directory: false,
@@ -13,6 +14,7 @@
 
          const response = await invoke('load_file', { filepath: filepath });
          docContent.set(response);
+         docPath.set(filepath);
          goto('/edit');
 
      } catch(error) {
@@ -22,6 +24,7 @@
 
  async function newFile() {
     docContent.set('');
+     docPath.set('');
     goto('/edit');
  }
 
