@@ -4,6 +4,7 @@
  import Editor from "../../Editor.svelte";
  import { docContent, docPath } from "../../stores/docStore";
  import { onMount } from "svelte";
+ import { goto } from "$app/navigation";
 
  // vars
  let title = $state("");
@@ -40,12 +41,17 @@
      docContent.set(newText);
  }
 
- async function handleSave(event: Event) {
-    event.preventDefault();
+ async function handleSave() {
     // if path == '': ask for path
-    debug_str = path;
     await invoke("save_file", { filepath: path, contents: doc });
-  }
+ }
+
+ async function handleQuit() {
+     docContent.set('');
+     docPath.set('');
+
+     goto('/');
+ }
 
 </script>
 
@@ -63,7 +69,7 @@
       <button onclick={handleSave}>SAVE</button>
     </div>
     <div class="editor-pane" onfocus={editorFocus}>
-        <Editor doc={doc} onChange={docChange} />
+        <Editor doc={doc} onChange={docChange} onSave={handleSave} onQuit={handleQuit} />
     </div>
 </main>
 

@@ -2,7 +2,7 @@
  import { onMount, onDestroy } from "svelte";
  import { EditorState } from "@codemirror/state";
  import { EditorView, basicSetup } from "codemirror";
- import { vim } from "@replit/codemirror-vim";
+ import { vim, Vim } from "@replit/codemirror-vim";
 
  // depricated but what else is there tbh..:
  import { markdown } from "@codemirror/lang-markdown";
@@ -10,10 +10,27 @@
 
  export let doc: string = '';
  export let onChange: (text: string) => void = () => {};
+ export let onSave: () => void = () => {};
+ export let onQuit: () => void = () => {};
 
  let element = HTMLDivElement;
  let view = EditorView;
+
  onMount (() => {
+
+     Vim.defineEx("write", "w", () => {
+         onSave();
+     });
+
+     Vim.defineEx("quit", "q", () => {
+         onQuit();
+     });
+
+     Vim.defineEx("wq", "wq", () => {
+         onSave();
+         onQuit();
+     });
+
      const editorTheme = EditorView.theme({
          "&": {
              color: "#ffffff",
