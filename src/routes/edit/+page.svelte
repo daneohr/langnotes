@@ -3,7 +3,7 @@
  import { invoke } from "@tauri-apps/api/core";
  import Editor from "../../Editor.svelte";
  import { docContent, docPath } from "../../stores/docStore";
- import { onDestroy, onMount } from "svelte";
+ import { onMount } from "svelte";
 
  // vars
  let title = $state("");
@@ -11,15 +11,17 @@
  let debug_str = $state("");
 
  // preload with data:
- let doc = $docContent;
- let path = $docPath;
+ let doc = $state($docContent);
+ let path = $state($docPath);
 
  onMount(async () => {
     await findTitle(path);
  });
 
  async function findTitle(path: string) {
-     // FIND THE NAME OF THE FILE
+     if (!path) return;
+     // Compute the 'title' of the file:
+     //  example.md turns into 'example' = title
      let final_title = path.slice(path.lastIndexOf("/")+1, path.length);
      let file_ext = final_title.substring(final_title.indexOf(".") + 1);
      final_title = final_title.substring(0, final_title.indexOf("."));
@@ -28,18 +30,22 @@
      file_extension = file_ext.toUpperCase();
  }
 
- async function save(path: string) {
-     // if path == '': ask for path
- }
-
  async function saveTitle(event: Event) {
      event.preventDefault();
      debug_str = await invoke("save_title", {title});
  }
 
  async function docChange(newText: string) {
-     doc=newText;
+     doc = newText;
+     docContent.set(newText);
  }
+
+ async function handleSave(event: Event) {
+    event.preventDefault();
+    // if path == '': ask for path
+    debug_str = path;
+    await invoke("save_file", { filepath: path, contents: doc });
+  }
 
 </script>
 
@@ -54,6 +60,7 @@
       {#if debug_str}
           <p class="debug-text">Debug: {debug_str}</p>
       {/if}
+      <button onclick={handleSave}>SAVE</button>
     </div>
     <div class="editor-pane" onfocus={editorFocus}>
         <Editor doc={doc} onChange={docChange} />

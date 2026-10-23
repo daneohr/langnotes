@@ -83,7 +83,7 @@
              EditorView.updateListener.of((update) => {
                  if (update.docChanged) {
                      const currentText = update.state.doc.toString();
-                     onchange(currentText);
+                     onChange(currentText);
                  }
              }),
          ],
