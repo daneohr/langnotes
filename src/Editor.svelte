@@ -35,7 +35,8 @@
          "&": {
              color: "#ffffff",
              background: "#2f2f2f",
-             height: "100%"
+             height: "100%",
+             position: "relative"
          },
 
          ".cm-content": {
@@ -80,12 +81,29 @@
              backgroundColor: "#00ff00 !important"
          },
 
+         // cmd palette
          ".cm-vim-panel": {
-             padding: "0",
+             position: "absolute",
+             bottom: "20px",
+             left: "0",
+             width: " 100%",
+             maxWidth: "500px",
+             zIndex: "100",
+
              backgroundColor: "#3f3f3f",
              color: "#ffffff",
-             fontSize: "13px",
-             borderTop: "1px solid #afafaf"
+             fontSize: "14px",
+             borderRadius: "0",
+             border: "1px solid #afafaf"
+         },
+
+         ".cm-vim-panel input": {
+             color: "#ffffff",
+             background: "transparent",
+             border: "none",
+             outline: "none",
+             fontFamily: "inherit",
+             fontSize: "14px"
          }
 
      }, { dark: true });
@@ -123,15 +141,9 @@
 
 <style>
  .editor-container {
+     position: relative;
      width: 100%;
      height: 100%;
      text-align: left;
-     border-radius: 4px;
-     overflow: hidden;
-
-  }
-  
- .editor-container  {
-     height: 100%;
   }
 </style>
