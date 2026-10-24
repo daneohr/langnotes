@@ -28,7 +28,7 @@
      final_title = final_title.substring(0, final_title.indexOf("."));
 
      title = final_title;
-     file_extension = file_ext.toUpperCase();
+     file_extension = "." + file_ext.toUpperCase();
  }
 
  async function saveTitle(event: Event) {
@@ -43,6 +43,10 @@
 
  async function handleSave() {
     // if path == '': ask for path
+     if (!path) {
+         debug_str = "NO PATH: " + path;
+     }
+
     await invoke("save_file", { filepath: path, contents: doc });
  }
 
@@ -60,7 +64,7 @@
       <form onsubmit={saveTitle} class="title-form">
           <div class="input-wrapper">
             <input class="title" placeholder="Title" bind:value={title} />
-            <span class="file-ext">.{file_extension}</span>
+            <span class="file-ext">{file_extension}</span>
           </div>
       </form>
       {#if debug_str}
