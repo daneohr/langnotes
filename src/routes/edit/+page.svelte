@@ -38,7 +38,9 @@
 
  async function saveTitle(event: Event) {
      event.preventDefault();
-     debug_str = await invoke("save_title", {title});
+     // TODO:
+     // uhh i need to append the title to the end of the thingy
+     // ONLY if it doesn't already have it
  }
 
  async function docChange(newText: string) {
@@ -53,7 +55,6 @@
 
      // Yes, this sucks
      switch (msg_type.toLowerCase().trim()) {
-         // TODO: change color based on it
          case "info":
              info_str = "INFO: " + message;
              info_str_color = "#ffff00";
@@ -71,18 +72,37 @@
  }
 
  async function handleSave() {
-    // if path == '': ask for path
-    // Is title empty?
+
     if (!path) {
 
-         if (!title) {
-             handleInfoStr("error", "No Title");
-         }
-         else {
-             const filepath = await open({
+        if (!title) {
+            handleInfoStr("error", "No Title");
+        }
+
+        else if (title.indexOf(".") > -1 ) {
+            handleInfoStr("error", "Title cannot have '.' in it");
+        }
+
+        else {
+            const filepath = await open({
                  multiple: false,
                  directory: true
              });
+
+
+             // TODO: Rust function: append paths
+            let filepath = await invoke("get_new_filepath", { title: title, base_path: filepath});
+
+            debug_str = filepath;
+
+            if (filepath == "-1") {
+                // error, exists
+                // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
+                handleInfoStr("error", "File already exists");
+            } else {
+
+                docPath.set(filepath);
+            }
          }
      }
 
@@ -100,7 +120,7 @@
 
 <main class="container">
     <div class="header-area">
-      <form onsubmit={saveTitle} class="title-form">
+      <form onkeyup={saveTitle} class="title-form">
           <div class="input-wrapper">
             <input class="title" placeholder="Title" bind:value={title} />
             <span class="file-ext">{file_extension}</span>
