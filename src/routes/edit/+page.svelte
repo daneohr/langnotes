@@ -73,40 +73,59 @@
 
  async function handleSave() {
 
-    if (!path) {
+     // TODO: Handle rename files by checking if title has changed
+     // I'd need to track how the title came in originally probably
+     try {
+         if (!$docPath) {
 
-        if (!title) {
-            handleInfoStr("error", "No Title");
-        }
+             if (!title) {
+                 handleInfoStr("error", "No Title");
+             }
 
-        else if (title.indexOf(".") > -1 ) {
-            handleInfoStr("error", "Title cannot have '.' in it");
-        }
+             else if (title.indexOf(".") > -1 ) {
+                 handleInfoStr("error", "Title cannot have '.' in it");
+             }
 
-        else {
-            const filepath = await open({
-                 multiple: false,
-                 directory: true
-             });
+             else {
+                 const base_filepath = await open({
+                     multiple: false,
+                     directory: true
+                 });
 
+                 if (!base_filepath) {
+                     handleInfoStr("info", "Dialog cancelled");
+                 }
 
-             // TODO: Rust function: append paths
-            let filepath = await invoke("get_new_filepath", { title: title, base_path: filepath});
+                 let filepath = await invoke("get_new_filepath", {
+                     title: title,
+                     basePath: base_filepath
+                 });
 
-            debug_str = filepath;
-
-            if (filepath == "-1") {
-                // error, exists
-                // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
-                handleInfoStr("error", "File already exists");
-            } else {
-
-                docPath.set(filepath);
-            }
+                 if (filepath === "-1") {
+                     // error, exists
+                     // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
+                     handleInfoStr("error", "File already exists");
+                 } else {
+                     docPath.set(filepath);
+                 }
+             }
          }
-     }
 
-    await invoke("save_file", { filepath: path, contents: doc });
+         if (!$docPath) {
+             handleInfoStr("error", "Invalid File Path");
+             return;
+         }
+
+         let result = await invoke("save_file", {
+             filepath: $docPath,
+             contents: doc
+         });
+
+         handleInfoStr("info", result);
+     } catch (e) {
+         console.error("error: ", e);
+         handleInfoStr("error", String(e));
+     }
  }
 
  async function handleQuit() {
