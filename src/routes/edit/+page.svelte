@@ -5,11 +5,16 @@
  import { docContent, docPath } from "../../stores/docStore";
  import { onMount } from "svelte";
  import { goto } from "$app/navigation";
+ import { open } from "@tauri-apps/plugin-dialog";
 
  // vars
  let title = $state("");
  let file_extension = $state("");
  let debug_str = $state("");
+
+ // info about certain errors, etc
+ let info_str = $state("");
+ let info_str_color = $state("#ffffff");
 
  // preload with data:
  let doc = $state($docContent);
@@ -41,10 +46,44 @@
      docContent.set(newText);
  }
 
+ // I would love to use an enum for msg_type..
+ // ... But they aren't supported in svelte <script>
+ function handleInfoStr(msg_type: string, message: string) {
+     // TODO: Handle close button
+
+     // Yes, this sucks
+     switch (msg_type.toLowerCase().trim()) {
+         // TODO: change color based on it
+         case "info":
+             info_str = "INFO: " + message;
+             info_str_color = "#ffff00";
+             break;
+
+         case "error":
+             info_str = "ERROR: " + message;
+             info_str_color = "#ff2222";
+             break;
+
+         default:
+             throw new Error("Unnown command type");
+             break;
+     }
+ }
+
  async function handleSave() {
     // if path == '': ask for path
-     if (!path) {
-         debug_str = "NO PATH: " + path;
+    // Is title empty?
+    if (!path) {
+
+         if (!title) {
+             handleInfoStr("error", "No Title");
+         }
+         else {
+             const filepath = await open({
+                 multiple: false,
+                 directory: true
+             });
+         }
      }
 
     await invoke("save_file", { filepath: path, contents: doc });
@@ -67,6 +106,10 @@
             <span class="file-ext">{file_extension}</span>
           </div>
       </form>
+      {#if info_str}
+          <p class="info-text" style="color: {info_str_color}">{info_str}</p>
+      {/if}
+
       {#if debug_str}
           <p class="debug-text">Debug: {debug_str}</p>
       {/if}
@@ -136,7 +179,7 @@
      user-select: none;
  }
 
- .debug-text {
+ .debug-text, .info-text{
      color: #ffff00;
  }
 
