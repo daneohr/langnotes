@@ -20,6 +20,8 @@
  let doc = $state($docContent);
  let path = $state($docPath);
 
+ let hasEditedTitle = false;
+
  onMount(async () => {
     await findTitle(path);
  });
@@ -38,9 +40,7 @@
 
  async function saveTitle(event: Event) {
      event.preventDefault();
-     // TODO:
-     // uhh i need to append the title to the end of the thingy
-     // ONLY if it doesn't already have it
+     hasEditedTitle = true;
  }
 
  async function docChange(newText: string) {
@@ -76,7 +76,7 @@
      // TODO: Handle rename files by checking if title has changed
      // I'd need to track how the title came in originally probably
      try {
-         if (!$docPath) {
+         if (!$docPath || hasEditedTitle) {
 
              if (!title) {
                  handleInfoStr("error", "No Title");
@@ -122,6 +122,7 @@
          });
 
          handleInfoStr("info", result);
+         hasEditedTitle = false;
      } catch (e) {
          console.error("error: ", e);
          handleInfoStr("error", String(e));

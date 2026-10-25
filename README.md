@@ -1,7 +1,9 @@
-# Tauri + SvelteKit + TypeScript
+# LangNotes: Language Learning Markdown Note-taking App with VIM Motions
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+> [!NOTE]
+> Work in progress
 
-## Recommended IDE Setup
+Langnotes aims to solve a problem I have which is that I want access to language learning tools quickly while taking notes. Things like translators, word lists/trackers, etc. The purpose of this app is that it combines these tools in a blazing-fast editor written using the Tauri framework. 
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+## Why Tauri?
+I chose Tauri because it is much faster and 'slimmer' than alternatives like Electron. It combines HTML, CSS, and JavaScript (or in this case, Svelte/SvelteKit with TypeScript) along with a Rust backend for a mix of development speed and memory safety.
