@@ -1,4 +1,4 @@
-use std::fs::{File, write};
+use std::fs::{File, write, rename};
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 
@@ -57,4 +57,23 @@ pub fn get_new_filepath(title: String, base_path: String) -> Result<String, Stri
         // TODO: Make this safer lmao
         return Ok(file_path.into_os_string().into_string().unwrap().into());
     }
+}
+
+#[tauri::command]
+pub fn rename_file(current_path: String, new_title: String) -> Result<String, String> {
+    let path = Path::new(&current_path);
+
+    let parent_path = path.parent().ok_or("Invalid Parent Path");
+
+    let extension = path.extension()
+                        .and_then(|e| e.to_str())
+                        .unwrap_or("md");
+
+    let new_filename = format!("{}.{}", new_title, extension);
+
+    let new_path = parent_path.join(new_filename);
+
+    rename(&current_path, &new_path).map_err(|e| e.to_string());
+
+    Ok(format!("Saved file: {}", new_path))
 }

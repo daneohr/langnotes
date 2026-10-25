@@ -20,6 +20,7 @@
  let doc = $state($docContent);
  let path = $state($docPath);
 
+ let originalTitle = $state("");
  let hasEditedTitle = false;
 
  onMount(async () => {
@@ -77,36 +78,33 @@
      // I'd need to track how the title came in originally probably
      try {
          if (!$docPath || hasEditedTitle) {
-
              if (!title) {
                  handleInfoStr("error", "No Title");
+                 return;
              }
-
              else if (title.indexOf(".") > -1 ) {
                  handleInfoStr("error", "Title cannot have '.' in it");
+                 return;
              }
-
              else {
                  const base_filepath = await open({
                      multiple: false,
                      directory: true
                  });
-
                  if (!base_filepath) {
                      handleInfoStr("info", "Dialog cancelled");
                  }
-
                  let filepath = await invoke("get_new_filepath", {
                      title: title,
                      basePath: base_filepath
                  });
-
-                 if (filepath === "-1") {
                      // error, exists
                      // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
                      handleInfoStr("error", "File already exists");
+
                  } else {
                      docPath.set(filepath);
+                     originalTitle = title;
                  }
              }
          }

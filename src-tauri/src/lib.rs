@@ -1,7 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod commands;
 
-use commands::edit::{ save_title, load_file, save_file, get_new_filepath };
+use commands::edit::{ save_title, load_file, save_file, get_new_filepath, rename_file };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,7 +12,8 @@ pub fn run() {
             save_title,
             load_file,
             save_file,
-            get_new_filepath
+            get_new_filepath,
+            rename_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
