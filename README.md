@@ -1,4 +1,4 @@
-# LangNotes: Language Learning Markdown Note-taking App with VIM Motions
+# LangNotes: Language Learning Note-taking App with VIM Motions
 
 > [!NOTE]
 > Work in progress
