@@ -37,9 +37,6 @@ pub fn save_file(filepath: String, contents: String) -> Result<String, String> {
     let path = Path::new(&filepath);
     let display = path.display();
 
-    print!("Path: {}\n", display);
-    print!("Contents: {}", contents);
-    
     match write(path, contents) {
         Ok(_) => Ok(format!("Saved file: {}", display)),
         Err(e) => Err(format!("Error saving file {}: {}", display, e))
@@ -71,9 +68,9 @@ pub fn rename_file(current_path: String, new_title: String) -> Result<String, St
 
     let new_filename = format!("{}.{}", new_title, extension);
 
-    let new_path = parent_path.join(new_filename);
+    let new_path = parent_path?.join(new_filename);
 
     rename(&current_path, &new_path).map_err(|e| e.to_string());
 
-    Ok(format!("Saved file: {}", new_path))
+    Ok(new_path.to_string_lossy().into_owned())
 }

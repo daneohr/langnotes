@@ -36,6 +36,7 @@
      final_title = final_title.substring(0, final_title.indexOf("."));
 
      title = final_title;
+     originalTitle = final_title;
      file_extension = "." + file_ext.toUpperCase();
  }
 
@@ -77,35 +78,56 @@
      // TODO: Handle rename files by checking if title has changed
      // I'd need to track how the title came in originally probably
      try {
-         if (!$docPath || hasEditedTitle) {
+         if ($docPath && title !== originalTitle) {
              if (!title) {
                  handleInfoStr("error", "No Title");
                  return;
-             }
-             else if (title.indexOf(".") > -1 ) {
+             } else if (title.indexOf(".") > -1 ) {
                  handleInfoStr("error", "Title cannot have '.' in it");
                  return;
              }
-             else {
-                 const base_filepath = await open({
-                     multiple: false,
-                     directory: true
-                 });
-                 if (!base_filepath) {
-                     handleInfoStr("info", "Dialog cancelled");
-                 }
-                 let filepath = await invoke("get_new_filepath", {
-                     title: title,
-                     basePath: base_filepath
-                 });
-                     // error, exists
-                     // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
-                     handleInfoStr("error", "File already exists");
 
-                 } else {
-                     docPath.set(filepath);
-                     originalTitle = title;
-                 }
+             let newPath = await invoke<string>("rename_file", {
+                 currentPath: $docPath,
+                 newTitle: title
+             });
+
+             docPath.set(newPath);
+             originalTitle = title;
+         }
+
+         else if (!$docPath) {
+             if (!title) {
+                 handleInfoStr("error", "No Title");
+                 return;
+             } else if (title.indexOf(".") > -1) {
+                 handleInfoStr("error", "Title cannot have '.' in it");
+                 return;
+             }
+
+             const base_filepath = await open({
+                 multiple: false,
+                 directory: true
+             });
+
+             if (!base_filepath) {
+                 handleInfoStr("info", "Dialog cancelled");
+                 return;
+             }
+
+             let filepath = await invoke<string>("get_new_filepath", {
+                 title: title,
+                 basePath: base_filepath
+             });
+
+             // error: exists
+             // May iterate, so add /path/filename.md turns into /path/filename(1).md, etc
+             if (filepath === "-1") {
+                 handleInfoStr("error", "File already exists");
+                 return;
+             } else {
+                 docPath.set(filepath);
+                 originalTitle = title;
              }
          }
 
