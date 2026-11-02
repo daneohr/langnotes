@@ -1,5 +1,5 @@
 use tauri_plugin_http::reqwest;
-use serde::Serialize;
+use serde::{ Serialize, Deserialize };
 
 #[derive(Serialize)]
 struct Headers {
@@ -25,14 +25,23 @@ pub async fn make_request(lang_code: String, content: String) -> Result<String, 
     };
 
     let body = client.post("https://libretranslate.com/translate")
-        .json(&params)
+        .body(params)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .send()
-        .await?;
+        .await;
 
-    print!("{}", body);
+    match body {
+        Ok(response) => {
+            println!("{}", response.status());
+            Ok(format!("{}", response.status()))
+        }
+        Err(e) => {
+            println!("{}", e);
+            Err(format!("ERROR: {}", e))
+        }
+    }
 
-    Ok(format!("{}", body))
+    //Ok(String::from("Yoo"))
 }
 
 #[cfg(test)]
@@ -41,7 +50,10 @@ mod tests {
 
     #[test]
     fn req() {
-        make_request("de".into(), "Hey, what's up".into());
+        let result = tauri::async_runtime::block_on( async {
+            println!("TEST TEST TEST");
+            make_request("de".into(), "Hey, whats up".into()).await
+        });
     }
 }
 
