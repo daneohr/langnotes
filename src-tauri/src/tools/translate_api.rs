@@ -1,6 +1,4 @@
-// use reqwest::{ post, HeaderMap };
 use tauri_plugin_http::reqwest;
-use std::collections::HashMap;
 use serde::Serialize;
 
 #[derive(Serialize)]
