@@ -1,6 +1,7 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
 
+
 #[derive(Debug, Serialize)]
 struct Headers {
     q: String,
@@ -10,6 +11,7 @@ struct Headers {
     alternatives: u8,
     api_key: String
 }
+
 
 pub async fn make_request(lang_code: String, content: String) -> Result<String, String> {
 

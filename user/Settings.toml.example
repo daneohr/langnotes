@@ -1,0 +1,12 @@
+# Ollama setup
+[Ollama]
+endpoint=""
+default_model=""
+temperature="0.2"
+
+# Paths to previous notes along with their default languages
+## Not in use yet
+[paths]
+[[paths.item]]
+path=""
+default_language=""
