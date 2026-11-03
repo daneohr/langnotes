@@ -1,7 +1,7 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct Headers {
     q: String,
     source: String,
@@ -24,8 +24,10 @@ pub async fn make_request(lang_code: String, content: String) -> Result<String, 
         api_key: "".into()
     };
 
+    println!("{:?}", params);
+
     let body = client.post("https://libretranslate.com/translate")
-        .body(params)
+        .json(&params)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .send()
         .await;
