@@ -2,9 +2,12 @@ use serde::{Serialize, Deserialize };
 
 // To recieve model lists from Ollama
 #[derive(Serialize, Deserialize)]
-pub struct Models {
-    models: Vec<Model>,
+struct Details {
+    format: String,
+    family: String,
+    families: Vec<String>,
 }
+
 
 #[derive(Serialize, Deserialize)]
 struct Model {
@@ -17,8 +20,7 @@ struct Model {
     quantization_level: String,
 }
 
-struct Details {
-    format: String,
-    family: String,
-    families: Vec<String>,
+#[derive(Serialize, Deserialize)]
+pub struct Models {
+    models: Vec<Model>,
 }

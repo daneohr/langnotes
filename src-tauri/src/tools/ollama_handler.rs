@@ -1,12 +1,17 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
-use super::data_structs;
+//use super::data_structs;
 
 // TODO: Add data structures in separate rust file
 
 #[tauri::command]
 pub async fn ollama_list() -> Result<Vec<String>, String>{
-    let response = reqwest::get("http:/100.74.159.59:11434/api/tags").await;
+
+    println!("DUDE");
+
+    let response = reqwest::get("http://100.74.159.59:11434/api/tags")
+        .await
+        .map_err(|e| format!("Failed to send request: {}", e))?;
 
     let mut models: Vec<String>= Vec::new();
 
@@ -16,7 +21,6 @@ pub async fn ollama_list() -> Result<Vec<String>, String>{
         reqwest::StatusCode::OK => {
             //Ok(vec![response.text()])
             println!("OK");
-
             Ok(models)
         },
         // not found: no model (check if endpoint is correct)
@@ -42,6 +46,7 @@ pub async fn ollama_list() -> Result<Vec<String>, String>{
        }
    }
 
+//Ok(models)
 
 }
 
@@ -105,7 +110,15 @@ mod tests {
     #[test]
     fn list() {
         let result = tauri::async_runtime::block_on( async {
-            ollama_list().await;
+            let list = ollama_list().await;
+            match list {
+                Ok(res) => {
+                    println!("GOOD: {:?}", res);
+                }
+                Err(e) => {
+                    println!("BAD: {}", e);
+                }
+            }
         });
     }
 }
