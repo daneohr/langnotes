@@ -1,6 +1,49 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
+use super::data_structs;
 
+// TODO: Add data structures in separate rust file
+
+#[tauri::command]
+pub async fn ollama_list() -> Result<Vec<String>, String>{
+    let response = reqwest::get("http:/100.74.159.59:11434/api/tags").await;
+
+    let mut models: Vec<String>= Vec::new();
+
+    println!{"{:?}", response};
+
+   match response.status() {
+        reqwest::StatusCode::OK => {
+            //Ok(vec![response.text()])
+            println!("OK");
+
+            Ok(models)
+        },
+        // not found: no model (check if endpoint is correct)
+       reqwest::StatusCode::NOT_FOUND => {
+           println!("Not found");
+           Err("Error: Not found".into())
+       },
+
+       reqwest::StatusCode::REQUEST_TIMEOUT => {
+           println!("Request Timeout");
+           Err("Error: Request Timeout".into())
+       },
+
+       reqwest::StatusCode::UNAUTHORIZED => {
+           println!("Unauthroized");
+           Err("Error: Unauthorized".into())
+       },
+
+       _ => {
+           //Err("An unknown error has occured".into())
+           println!("An unexpected error occured");
+           Err("Error: Not found".into())
+       }
+   }
+
+
+}
 
 #[derive(Debug, Serialize)]
 struct Headers {
@@ -52,11 +95,17 @@ pub async fn make_request(lang_code: String, content: String) -> Result<String, 
 mod tests {
     use super::*;
 
+//    #[test]
+//    fn req() {
+//        let result = tauri::async_runtime::block_on( async {
+//            make_request("de".into(), "Hey, whats up".into()).await
+//        });
+//    }
+
     #[test]
-    fn req() {
+    fn list() {
         let result = tauri::async_runtime::block_on( async {
-            println!("TEST TEST TEST");
-            make_request("de".into(), "Hey, whats up".into()).await
+            ollama_list().await;
         });
     }
 }
