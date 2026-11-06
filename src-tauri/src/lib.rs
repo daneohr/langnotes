@@ -3,6 +3,7 @@ mod commands;
 mod tools;
 
 use commands::edit::{ save_title, load_file, save_file, get_new_filepath, rename_file };
+use tools::ollama_handler::ollama_list;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -15,7 +16,8 @@ pub fn run() {
             load_file,
             save_file,
             get_new_filepath,
-            rename_file
+            rename_file,
+            ollama_list
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

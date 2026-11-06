@@ -1,26 +1,26 @@
 use serde::{Serialize, Deserialize };
 
 // To recieve model lists from Ollama
-#[derive(Serialize, Deserialize)]
-struct Details {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Details {
     format: String,
     family: String,
     families: Vec<String>,
-}
-
-
-#[derive(Serialize, Deserialize)]
-struct Model {
-    name: String,
-    model: String,
-    size: usize,
-    digest: String,
-    details: Vec<Details>,
     parameter_size: String,
     quantization_level: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Model {
+    pub name: String,
+    pub model: String,
+    modified_at: String,
+    size: usize,
+    digest: String,
+    details: Details,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Models {
-    models: Vec<Model>,
+    pub models: Vec<Model>,
 }

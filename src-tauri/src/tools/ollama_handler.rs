@@ -1,52 +1,39 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
-//use super::data_structs;
+use super::data_structs::Models;
 
 // TODO: Add data structures in separate rust file
 
 #[tauri::command]
 pub async fn ollama_list() -> Result<Vec<String>, String>{
 
-    println!("DUDE");
-
     let response = reqwest::get("http://100.74.159.59:11434/api/tags")
         .await
         .map_err(|e| format!("Failed to send request: {}", e))?;
 
-    let mut models: Vec<String>= Vec::new();
-
-    println!{"{:?}", response};
-
-   match response.status() {
+    match response.status() {
+        // Request is good, return list of model names
         reqwest::StatusCode::OK => {
-            //Ok(vec![response.text()])
-            println!("OK");
-            Ok(models)
+            let response_json: Models = response.json().await.unwrap();
+            let names: Vec<String> = response_json.models.
+                into_iter()
+                .map(|model| model.name)
+                .collect();
+            Ok(names)
         },
         // not found: no model (check if endpoint is correct)
        reqwest::StatusCode::NOT_FOUND => {
-           println!("Not found");
            Err("Error: Not found".into())
        },
 
        reqwest::StatusCode::REQUEST_TIMEOUT => {
-           println!("Request Timeout");
            Err("Error: Request Timeout".into())
        },
 
-       reqwest::StatusCode::UNAUTHORIZED => {
-           println!("Unauthroized");
-           Err("Error: Unauthorized".into())
-       },
-
        _ => {
-           //Err("An unknown error has occured".into())
-           println!("An unexpected error occured");
            Err("Error: Not found".into())
        }
    }
-
-//Ok(models)
 
 }
 
