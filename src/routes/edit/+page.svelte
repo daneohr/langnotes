@@ -156,6 +156,11 @@
      goto('/');
  }
 
+ async function handleOllamaList() {
+     let info = await invoke("ollama_list");
+     handleInfoStr("info", info);
+ }
+
 </script>
 
 <main class="container">
@@ -176,7 +181,7 @@
       <button onclick={handleSave}>SAVE</button>
     </div>
     <div class="editor-pane" onfocus={editorFocus}>
-        <Editor doc={doc} onChange={docChange} onSave={handleSave} onQuit={handleQuit} />
+        <Editor doc={doc} onChange={docChange} onSave={handleSave} onQuit={handleQuit} onOllamaList={handleOllamaList} />
     </div>
 </main>
 
