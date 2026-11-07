@@ -1,6 +1,6 @@
 use tauri_plugin_http::reqwest;
 use serde::{ Serialize, Deserialize };
-use super::data_structs::Models;
+use super::data_structs::{ Models, GeneratePost, GenerateResponse };
 
 // TODO: Add data structures in separate rust file
 
@@ -37,62 +37,43 @@ pub async fn ollama_list() -> Result<Vec<String>, String>{
 
 }
 
-#[derive(Debug, Serialize)]
-struct Headers {
-    q: String,
-    source: String,
-    target: String,
-    format: String,
-    alternatives: u8,
-    api_key: String
-}
-
-
 pub async fn make_request(lang_code: String, content: String) -> Result<String, String> {
 
     let client = reqwest::Client::new();
 
-    let params = Headers {
-        q: content,
-        source: "en".into(),
-        target: lang_code,
-        format: "text".into(),
-        alternatives: 3,
-        api_key: "".into()
+    let params = GeneratePost {
+        model: "translategemma:4b".into(),
+        prompt: "How do you say say hello in Mandarin Chinese? Provide 3 different alternatives.".into(),
+        stream: false
     };
 
-    println!("{:?}", params);
-
-    let body = client.post("https://libretranslate.com/translate")
+    let response = client.post("http://100.74.159.59:11434/api/generate")
         .json(&params)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
         .send()
-        .await;
+        .await
+        .map_err(|e| format!("Failed to send request: {}", e))?;
 
-    match body {
-        Ok(response) => {
-            println!("{}", response.status());
-            Ok(format!("{}", response.status()))
-        }
-        Err(e) => {
-            println!("{}", e);
-            Err(format!("ERROR: {}", e))
-        }
+    if response.status().is_success() {
+        let response_json: GenerateResponse = response
+            .json()
+            .await
+            .map_err(|e| format!("Failed to parse response: {}", e))?;
+        Ok(response_json.response)
+    } else {
+        Err("An unknown error occured".into())
     }
-
-    //Ok(String::from("Yoo"))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-//    #[test]
-//    fn req() {
-//        let result = tauri::async_runtime::block_on( async {
-//            make_request("de".into(), "Hey, whats up".into()).await
-//        });
-//    }
+    #[test]
+    fn req() {
+        let result = tauri::async_runtime::block_on( async {
+            let response = make_request("de".into(), "Hey, whats up".into()).await.unwrap();
+        });
+    }
 
     #[test]
     fn list() {
