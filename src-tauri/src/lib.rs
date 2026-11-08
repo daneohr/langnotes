@@ -16,24 +16,7 @@ pub fn run() {
     tauri::Builder::default()
 
         .setup(|app| {
-            let config_dir = app.path().app_config_dir()?;
-
-            if !config_dir.exists(){
-                fs::create_dir_all(&config_dir)?;
-            }
-
-            let config_path = config_dir.join("Config.toml");
-
-            let config = if config_path.exists() {
-                let contents = fs::read_to_string(&config_path)?;
-                toml::from_str(&contents).unwrap_or_default()
-            } else {
-                let default_config = settings_handler::Config::default();
-                let toml_string = toml::to_string(&default_config)?;
-                fs::write(&config_path, toml_string)?;
-                default_config
-            };
-
+            let config = settings_handler::load_config(app.handle())?;
             app.manage(settings_handler::ConfigState(Mutex::new(config)));
             Ok(())
 

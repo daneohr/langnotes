@@ -3,6 +3,7 @@ use toml;
 use serde::{ Deserialize, Serialize };
 use std::fs;
 use std::sync::Mutex;
+use std::error;
 
 pub struct ConfigState(pub Mutex<Config>);
 
@@ -49,41 +50,36 @@ impl Default for Config {
     }
 }
 
-// :reload_config
-
-#[tauri::command]
-pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) -> Result<(), String> {
-    let mut config = state.0.lock().unwrap();
-    let config_dir = app.path().app_config_dir().map_err(|e| format!("Unable to load app config directory: {}", e))?;
+// load config from file or create it
+pub fn load_config(app: &tauri::AppHandle) -> Result<Config, Box<dyn error::Error>> {
+    let config_dir = app.path().app_config_dir()?;
 
     if !config_dir.exists() {
-        fs::create_dir_all(&config_dir).map_err(|e| format!("Could not create config directory: {}", e))?;
+        fs::create_dir_all(&config_dir)?;
     }
 
     let config_path = config_dir.join("Config.toml");
-    let new_conf = if config_path.exists() {
-        let contents = fs::read_to_string(&config_path).map_err(|e| format!("Error reading file: {}", e))?;
+    let config = if config_path.exists() {
+        let contents = fs::read_to_string(&config_path)?;
         toml::from_str(&contents).unwrap_or_default()
     } else {
         let default_config = Config::default();
-        let toml_string = toml::to_string(&default_config).map_err(|e| format!("Error parsing config into toml: {}", e))?;
-        fs::write(&config_path, toml_string).map_err(|e| format!("Could not write default config to disk: {}", e))?;
+        let toml_string = toml::to_string(&default_config)?;
+        fs::write(&config_path, toml_string)?;
         default_config
     };
 
-    *config = new_conf.clone();
-
-    //fs::write(config_path, &new_conf).map_err(|e| format!("Error writing changes to disk: {}", e))?;
-
-    Ok(())
+    Ok(config)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// :reload_config
+#[tauri::command]
+pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) -> Result<(), String> {
+    // Mutex of config, which is stored in memory (we want to update it)
+    let mut config = state.0.lock().unwrap();
+    let new_conf = load_config(&app).map_err(|e| format!("Error loading config: {}", e))?;
 
-    #[test]
-    fn load_conf() {
-        let _ = load_config();
-    }
+    *config = new_conf.clone();
+
+    Ok(())
 }
