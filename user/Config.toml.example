@@ -1,8 +1,8 @@
 # Ollama setup
-[Ollama]
+[ollama]
 endpoint=""
 default_model=""
-temperature="0.2"
+#temperature="0.2"
 alternatives=3
 
 # Paths to previous notes along with their default languages
@@ -11,4 +11,3 @@ alternatives=3
 [[paths.item]]
 path=""
 default_language=""
-default_model=""
