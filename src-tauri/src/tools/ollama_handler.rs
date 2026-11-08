@@ -1,5 +1,4 @@
 use tauri_plugin_http::reqwest;
-use serde::{ Serialize, Deserialize };
 use super::data_structs::{ Models, GeneratePost, GenerateResponse };
 
 // TODO: Add data structures in separate rust file

@@ -3,7 +3,9 @@ mod commands;
 mod tools;
 
 use std::fs;
-use tauri::async_runtime::Mutex;
+use std::sync::Mutex;
+use tauri::Manager;
+use toml;
 
 use commands::edit::{ save_title, load_file, save_file, get_new_filepath, rename_file };
 use tools::ollama_handler::ollama_list;
@@ -14,26 +16,25 @@ pub fn run() {
     tauri::Builder::default()
 
         .setup(|app| {
-            let config_dir = app.path().appConfigDir();
+            let config_dir = app.path().app_config_dir()?;
 
-            if !config_dir {
-                fs::create_dir_all(&config_dir);
+            if !config_dir.exists(){
+                fs::create_dir_all(&config_dir)?;
             }
 
             let config_path = config_dir.join("Config.toml");
 
             let config = if config_path.exists() {
                 let contents = fs::read_to_string(&config_path)?;
-                toml::from_string(&content).unwrap_or_default()
+                toml::from_str(&contents).unwrap_or_default()
             } else {
                 let default_config = settings_handler::Config::default();
                 let toml_string = toml::to_string(&default_config)?;
-                fs::write(&config_path, toml_string);
+                fs::write(&config_path, toml_string)?;
                 default_config
             };
 
-            app.manage(ConfigState(Mutex::new(config)));
-
+            app.manage(settings_handler::ConfigState(Mutex::new(config)));
             Ok(())
 
         })
@@ -47,7 +48,8 @@ pub fn run() {
             save_file,
             get_new_filepath,
             rename_file,
-            ollama_list
+            ollama_list,
+            settings_handler::reload_config
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

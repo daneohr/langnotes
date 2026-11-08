@@ -1,30 +1,31 @@
-use tauri::utils::config::AppConfig;
-use toml::Table;
+use tauri::Manager;
+use toml;
 use serde::{ Deserialize, Serialize };
 use std::fs;
-use std::error::Error;
-use std::io::ErrorKind::NotFound;
+use std::sync::Mutex;
 
-// User structs /user/Settings.toml
-#[derive(Serialize Debug, Deserialize)]
+pub struct ConfigState(pub Mutex<Config>);
+
+// Config Structs
+#[derive(Serialize, Debug, Deserialize, Clone)]
 pub struct Config {
     ollama: Ollama,
     paths: Paths,
 }
 
-#[derive(Serialize Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 struct Ollama {
     url: String,
     default_model: String,
     alternatives: u8,
 }
 
-#[derive(Serialize Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 struct Paths {
     item: Vec<Item>,
 }
 
-#[derive(Serialize Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 struct Item {
     path: String,
     default_language: String,
@@ -39,7 +40,7 @@ impl Default for Config {
                 alternatives: 3,
             },
             paths: Paths {
-                item: Vec::from(Item {
+                item: vec!(Item {
                 path: String::new(),
                 default_language: "en".into()
                 })
@@ -51,26 +52,28 @@ impl Default for Config {
 // :reload_config
 
 #[tauri::command]
-pub fn load_config() -> Result<(), String> {
+pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) -> Result<(), String> {
+    let mut config = state.0.lock().unwrap();
+    let config_dir = app.path().app_config_dir().map_err(|e| format!("Unable to load app config directory: {}", e))?;
 
-    let settings_file: String = match fs::read_to_string("../../../user/Settings.toml") {
-        Ok (contents) => {
-            contents.into()
-        }
-        Err(e) => {
-            if e.kind() == NotFound {
-                println!("Config not found!");
-                panic!();
-            }
-            String::new()
-        }
+    if !config_dir.exists() {
+        fs::create_dir_all(&config_dir).map_err(|e| format!("Could not create config directory: {}", e))?;
+    }
+
+    let config_path = config_dir.join("Config.toml");
+    let new_conf = if config_path.exists() {
+        let contents = fs::read_to_string(&config_path).map_err(|e| format!("Error reading file: {}", e))?;
+        toml::from_str(&contents).unwrap_or_default()
+    } else {
+        let default_config = Config::default();
+        let toml_string = toml::to_string(&default_config).map_err(|e| format!("Error parsing config into toml: {}", e))?;
+        fs::write(&config_path, toml_string).map_err(|e| format!("Could not write default config to disk: {}", e))?;
+        default_config
     };
 
-    if let Ok(config) = toml::from_str::<Config>(&settings_file) {
-        print!("Config loaded: {:?}", config);
-    } else {
-        print!("Error loading config.");
-    }
+    *config = new_conf.clone();
+
+    //fs::write(config_path, &new_conf).map_err(|e| format!("Error writing changes to disk: {}", e))?;
 
     Ok(())
 }
