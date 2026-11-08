@@ -51,7 +51,7 @@ impl Default for Config {
 }
 
 // load config from file or create it
-pub fn load_config(app: &tauri::AppHandle) -> Result<Config, Box<dyn error::Error>> {
+pub fn load_config<R: tauri::Runtime, M: Manager<R>>(app: &M) -> Result<Config, Box<dyn error::Error>> {
     let config_dir = app.path().app_config_dir()?;
 
     if !config_dir.exists() {

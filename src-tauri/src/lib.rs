@@ -16,7 +16,7 @@ pub fn run() {
     tauri::Builder::default()
 
         .setup(|app| {
-            let config = settings_handler::load_config(app.handle())?;
+            let config = settings_handler::load_config(app)?;
             app.manage(settings_handler::ConfigState(Mutex::new(config)));
             Ok(())
 
