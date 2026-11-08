@@ -1,40 +1,57 @@
+use tauri::utils::config::AppConfig;
 use toml::Table;
-use serde::Deserialize;
+use serde::{ Deserialize, Serialize };
 use std::fs;
 use std::error::Error;
 use std::io::ErrorKind::NotFound;
 
 // User structs /user/Settings.toml
-#[derive(Debug, Deserialize)]
-struct Config {
+#[derive(Serialize Debug, Deserialize)]
+pub struct Config {
     ollama: Ollama,
     paths: Paths,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Serialize Debug, Deserialize)]
 struct Ollama {
     url: String,
     default_model: String,
     alternatives: u8,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Serialize Debug, Deserialize)]
 struct Paths {
     item: Vec<Item>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Serialize Debug, Deserialize)]
 struct Item {
     path: String,
     default_language: String,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            ollama: Ollama {
+                url: "http://localhost:11434".into(),
+                default_model: String::new(),
+                alternatives: 3,
+            },
+            paths: Paths {
+                item: Vec::from(Item {
+                path: String::new(),
+                default_language: "en".into()
+                })
+            }
+        }
+    }
 }
 
 // :reload_config
 
 #[tauri::command]
 pub fn load_config() -> Result<(), String> {
-   // let settings_file: String = read_to_string("../../../user/Settings.toml")
-   //     .map_err(|e| format!("Error: {}", e))?.into();
 
     let settings_file: String = match fs::read_to_string("../../../user/Settings.toml") {
         Ok (contents) => {

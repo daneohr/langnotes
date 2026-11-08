@@ -1,6 +1,6 @@
 # Ollama setup
 [ollama]
-endpoint=""
+url=""
 default_model=""
 #temperature="0.2"
 alternatives=3
