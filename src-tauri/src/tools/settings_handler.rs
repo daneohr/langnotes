@@ -64,8 +64,7 @@ pub fn load_config<R: tauri::Runtime, M: Manager<R>>(app: &M) -> Result<Config, 
         toml::from_str(&contents).unwrap_or_default()
     } else {
         let default_config = Config::default();
-        let toml_string = toml::to_string(&default_config)?;
-        fs::write(&config_path, toml_string)?;
+        save_config(&app, default_config)?;
         default_config
     };
 
