@@ -10,6 +10,7 @@
  export let onSave: () => void = () => {};
  export let onQuit: () => void = () => {};
  export let onOllamaList: () => void = () => {};
+ export let onReloadConfig: () => void = () => {};
 
  let element = HTMLDivElement;
  let view = EditorView;
@@ -29,8 +30,14 @@
          onQuit();
      });
 
+     // list all ollama models
      Vim.defineEx("ol", "ol", () => {
          onOllamaList();
+     });
+
+     // reload config
+     Vim.defineEx("config_reload", "config_reload", () => {
+         onReloadConfig();
      });
 
      const editorTheme = EditorView.theme({

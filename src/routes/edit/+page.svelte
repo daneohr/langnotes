@@ -161,6 +161,12 @@
      handleInfoStr("info", info);
  }
 
+ async function handleReloadConfig() {
+     let result = await invoke("reload_config");
+
+     handleInfoStr("info", result);
+ }
+
 </script>
 
 <main class="container">
@@ -181,7 +187,14 @@
       <button onclick={handleSave}>SAVE</button>
     </div>
     <div class="editor-pane" onfocus={editorFocus}>
-        <Editor doc={doc} onChange={docChange} onSave={handleSave} onQuit={handleQuit} onOllamaList={handleOllamaList} />
+        <Editor
+            doc={doc}
+            onChange={docChange}
+            onSave={handleSave}
+            onQuit={handleQuit}
+            onOllamaList={handleOllamaList}
+            onReloadConfig={handleReloadConfig}
+        />
     </div>
 </main>
 

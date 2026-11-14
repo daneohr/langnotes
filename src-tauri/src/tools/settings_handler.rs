@@ -1,6 +1,7 @@
 use tauri::Manager;
 use toml;
 use serde::{ Deserialize, Serialize };
+use std::fmt::format;
 use std::fs;
 use std::sync::Mutex;
 use std::error;
@@ -87,14 +88,15 @@ pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, new_config: Config
 
 // :reload_config
 #[tauri::command]
-pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) -> Result<(), String> {
+pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) -> Result<String, String> {
     let new_conf = load_config(&app).map_err(|e| format!("Error loading config: {}", e))?;
 
     // Mutex of config, which is stored in memory (we want to update it)
     let mut config = state.0.lock().unwrap();
     *config = new_conf.clone();
 
-    Ok(())
+    Ok(format!("{:?}", *config))
+    //Ok(String::from("Reload Config: OK"))
 }
 
 // Config actions from frontend
