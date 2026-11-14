@@ -64,7 +64,7 @@ pub fn load_config<R: tauri::Runtime, M: Manager<R>>(app: &M) -> Result<Config, 
         toml::from_str(&contents).unwrap_or_default()
     } else {
         let default_config = Config::default();
-        save_config(&app, default_config)?;
+        save_config(app, default_config.clone())?;
         default_config
     };
 
@@ -80,7 +80,7 @@ pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, new_config: Config
     }
 
     let toml_string = toml::to_string(&new_config)?;
-    fs::write(&config_path, toml_string)?;
+    fs::write(&config_dir, toml_string)?;
 
     Ok(())
 }
@@ -107,23 +107,22 @@ pub fn add_edit_path(
     state: tauri::State<ConfigState>,
     app: tauri::AppHandle,
     old_path: String,
-    new_path: String,
+    mut new_path: String,
     default_language_code: String
 ) -> Result<(), String> {
 
-
     if new_path == "" {
-        new_path = old_path;
+        new_path = old_path.clone();
     }
 
     // TODO: check if default_language-code is actually a valid code
 
-    let mut config = state.0.lock().map_err(|e| e.to_str())?;
+    let mut config = state.0.lock().map_err(|e| e.to_string())?;
 
     // if still false, error has occured
     let mut has_changed = false;
 
-    if let Some(existing_item) = config.paths.item.iter().find(|i| i.path == old_path && i.path != new_path) {
+    if let Some(existing_item) = config.paths.item.iter_mut().find(|i| i.path == old_path && i.path != new_path) {
         existing_item.path = new_path;
         existing_item.default_language = default_language_code;
         has_changed = true;

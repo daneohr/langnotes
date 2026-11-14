@@ -19,7 +19,10 @@
     ],
     "security": {
       "csp": null
-    }
+    },
+      "appDirectoriesOverride": {
+          "config": "$CONFIG/langnotes"
+      }
   },
   "bundle": {
     "active": true,
