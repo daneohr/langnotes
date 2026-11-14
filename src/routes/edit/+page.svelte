@@ -73,10 +73,11 @@
      }
  }
 
- async function handleSave() {
+ async function handleClearInfo() {
+     info_str = "";
+ }
 
-     // TODO: Handle rename files by checking if title has changed
-     // I'd need to track how the title came in originally probably
+ async function handleSave() {
      try {
          if ($docPath && title !== originalTitle) {
              if (!title) {
@@ -194,6 +195,7 @@
             onQuit={handleQuit}
             onOllamaList={handleOllamaList}
             onReloadConfig={handleReloadConfig}
+            onClearInfo={handleClearInfo}
         />
     </div>
 </main>

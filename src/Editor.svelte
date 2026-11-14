@@ -11,6 +11,7 @@
  export let onQuit: () => void = () => {};
  export let onOllamaList: () => void = () => {};
  export let onReloadConfig: () => void = () => {};
+ export let onClearInfo: () => void = () => {};
 
  let element = HTMLDivElement;
  let view = EditorView;
@@ -28,6 +29,10 @@
      Vim.defineEx("wq", "wq", () => {
          onSave();
          onQuit();
+     });
+
+     Vim.defineEx("clear", "clear", () => {
+         onClearInfo();
      });
 
      // list all ollama models
