@@ -2,10 +2,8 @@
 mod commands;
 mod tools;
 
-use std::fs;
 use std::sync::Mutex;
 use tauri::Manager;
-use toml;
 
 use commands::edit::{ save_title, load_file, save_file, get_new_filepath, rename_file };
 use tools::ollama_handler::ollama_list;
