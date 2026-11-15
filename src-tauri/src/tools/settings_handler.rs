@@ -10,12 +10,14 @@ pub struct ConfigState(pub Mutex<Config>);
 
 // Config Structs
 #[derive(Serialize, Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Config {
     ollama: Ollama,
     paths: Paths,
 }
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
+#[serde(default)]
 struct Ollama {
     url: String,
     default_model: String,
@@ -23,11 +25,13 @@ struct Ollama {
 }
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
+#[serde(default)]
 struct Paths {
     item: Vec<Item>,
 }
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
+#[serde(default)]
 struct Item {
     path: String,
     default_language: String,
@@ -38,15 +42,45 @@ impl Default for Config {
         Self {
             ollama: Ollama {
                 url: "http://localhost:11434".into(),
-                default_model: String::new(),
+                default_model: "gemma4".into(),
                 alternatives: 3,
             },
             paths: Paths {
                 item: vec!(Item {
-                path: String::new(),
-                default_language: "en".into()
+                    path: "$HOME/Documents/my_folder".into(),
+                    default_language: "es".into()
                 })
             }
+        }
+    }
+}
+
+impl Default for Ollama {
+    fn default() -> Self {
+        Self {
+            url: "http://localhost:11434".into(),
+            default_model: "gemma4".into(),
+            alternatives: 3,
+        }
+    }
+}
+
+impl Default for Paths {
+    fn default() -> Self {
+        Self {
+            item: vec!(Item {
+                path: "$HOME/Documents/my_folder".into(),
+                default_language: "es".into()
+            })
+        }
+    }
+}
+
+impl Default for Item {
+    fn default() -> Self {
+        Self {
+            path: "$HOME/Documents/my_folder".into(),
+            default_language: "es".into()
         }
     }
 }
@@ -62,7 +96,7 @@ pub fn load_config<R: tauri::Runtime, M: Manager<R>>(app: &M) -> Result<Config, 
     let config_path = config_dir.join("config.toml");
     let config = if config_path.exists() {
         let contents = fs::read_to_string(&config_path)?;
-        toml::from_str(&contents).unwrap_or_default()
+        toml::from_str(&contents)?
     } else {
         let default_config = Config::default();
         save_config(app, default_config.clone())?;
@@ -116,6 +150,10 @@ pub fn add_path(
 ) -> Result<String, String> {
 
     let mut config = state.0.lock().map_err(|e| e.to_string())?;
+
+    if lang_code == "" || new_path == "" {
+        return Err("Add Path: Lang code or new path is empty".into());
+    }
 
     if !config.paths.item.iter().any(|i| i.path == new_path) {
         config.paths.item.push(Item { path: new_path, default_language: lang_code});
