@@ -12,6 +12,7 @@
  export let onOllamaList: () => void = () => {};
  export let onReloadConfig: () => void = () => {};
  export let onClearInfo: () => void = () => {};
+ export let onConfigAddPath: (lang_code: string, new_path: string) => void = () => {};
 
  let element = HTMLDivElement;
  let view = EditorView;
@@ -43,6 +44,26 @@
      // reload config
      Vim.defineEx("config_reload", "config_reload", () => {
          onReloadConfig();
+     });
+
+     // add or edit a path in the config
+     Vim.defineEx("config_add_path", "config_add", (cm, params) => {
+         const args = params.args;
+
+         let lang_code: string;
+         let new_path: string;
+
+         // if args == 2, old path = new path
+         // if args == 3, old_path might equal new_path
+         if (!args || args.length != 2) {
+             return;
+         } else {
+             lang_code = args[0];
+             new_path = args[1];
+         }
+
+         onConfigAddPath(lang_code, new_path);
+
      });
 
      const editorTheme = EditorView.theme({

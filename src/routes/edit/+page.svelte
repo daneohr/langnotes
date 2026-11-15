@@ -168,6 +168,15 @@
      handleInfoStr("info", result);
  }
 
+ async function handleConfigAddPath(lang_code: string, new_path: string) {
+     let result = await invoke("add_path", {
+         newPath: new_path,
+         langCode: lang_code
+     });
+
+     handleInfoStr("info", result);
+ }
+
 </script>
 
 <main class="container">
@@ -196,6 +205,7 @@
             onOllamaList={handleOllamaList}
             onReloadConfig={handleReloadConfig}
             onClearInfo={handleClearInfo}
+            onConfigAddPath={handleConfigAddPath}
         />
     </div>
 </main>

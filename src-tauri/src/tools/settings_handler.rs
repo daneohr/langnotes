@@ -80,8 +80,10 @@ pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, new_config: Config
         fs::create_dir_all(&config_dir)?;
     }
 
+    let config_path = config_dir.join("config.toml");
+
     let toml_string = toml::to_string(&new_config)?;
-    fs::write(&config_dir, toml_string)?;
+    fs::write(&config_path, toml_string)?;
 
     Ok(())
 }
@@ -104,42 +106,21 @@ pub fn reload_config(app: tauri::AppHandle, state: tauri::State<ConfigState>) ->
 // remove path
 // edit path
 // update ollama (url, default model, alternatives)
+
 #[tauri::command]
-pub fn add_edit_path(
+pub fn add_path(
     state: tauri::State<ConfigState>,
     app: tauri::AppHandle,
-    old_path: String,
-    mut new_path: String,
-    default_language_code: String
-) -> Result<(), String> {
-
-    if new_path == "" {
-        new_path = old_path.clone();
-    }
-
-    // TODO: check if default_language-code is actually a valid code
+    new_path: String,
+    lang_code: String
+) -> Result<String, String> {
 
     let mut config = state.0.lock().map_err(|e| e.to_string())?;
 
-    // if still false, error has occured
-    let mut has_changed = false;
-
-    if let Some(existing_item) = config.paths.item.iter_mut().find(|i| i.path == old_path && i.path != new_path) {
-        existing_item.path = new_path;
-        existing_item.default_language = default_language_code;
-        has_changed = true;
-    } else if let Some(new_item) = config.paths.item.iter().find(|i| i.path != old_path && i.path != new_path) {
-        config.paths.item.push(Item {
-            path: new_path,
-            default_language: default_language_code
-        });
-        has_changed = true;
+    if !config.paths.item.iter().any(|i| i.path == new_path) {
+        config.paths.item.push(Item { path: new_path, default_language: lang_code});
+        save_config(&app, config.clone()).map_err(|e| e.to_string())?;
     }
 
-    if has_changed {
-        Ok(())
-    } else {
-        Err("Error".into())
-    }
-
+    Ok(String::from("Add Path: OK"))
 }
