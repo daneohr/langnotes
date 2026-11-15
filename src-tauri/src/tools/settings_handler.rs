@@ -8,6 +8,34 @@ use std::error;
 
 pub struct ConfigState(pub Mutex<Config>);
 
+enum ConfigDefaults {
+    OllamaURL,
+    OllamaModel,
+    OllamaAlternatives,
+    PathItemPath,
+    PathItemDefaultLanguage,
+}
+
+impl ConfigDefaults {
+    // this code is probably horribly written but i js need it to work at the moment..
+    fn as_str(&self) -> &str {
+        match self {
+            ConfigDefaults::OllamaURL => "http://localhost:11434",
+            ConfigDefaults::OllamaModel => "gemma4",
+            ConfigDefaults::OllamaAlternatives => "",
+            ConfigDefaults::PathItemPath => "<default>",
+            ConfigDefaults::PathItemDefaultLanguage => "es",
+        }
+    }
+
+    fn as_int(&self) -> u8 {
+        match self {
+            ConfigDefaults::OllamaAlternatives => 3,
+            _ => 0
+        }
+    }
+}
+
 // Config Structs
 #[derive(Serialize, Debug, Deserialize, Clone)]
 #[serde(default)]
@@ -30,7 +58,7 @@ struct Paths {
     item: Vec<Item>,
 }
 
-#[derive(Serialize, Debug, Deserialize, Clone)]
+#[derive(Serialize, Debug, Deserialize, Clone, PartialEq)]
 #[serde(default)]
 struct Item {
     path: String,
@@ -41,14 +69,14 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             ollama: Ollama {
-                url: "http://localhost:11434".into(),
-                default_model: "gemma4".into(),
-                alternatives: 3,
+                url: ConfigDefaults::OllamaURL.as_str().into(),
+                default_model: ConfigDefaults::OllamaModel.as_str().into(),
+                alternatives: ConfigDefaults::OllamaAlternatives.as_int(),
             },
             paths: Paths {
                 item: vec!(Item {
-                    path: "$HOME/Documents/my_folder".into(),
-                    default_language: "es".into()
+                    path: ConfigDefaults::PathItemPath.as_str().into(),
+                    default_language: ConfigDefaults::PathItemDefaultLanguage.as_str().into()
                 })
             }
         }
@@ -58,9 +86,9 @@ impl Default for Config {
 impl Default for Ollama {
     fn default() -> Self {
         Self {
-            url: "http://localhost:11434".into(),
-            default_model: "gemma4".into(),
-            alternatives: 3,
+            url: ConfigDefaults::OllamaURL.as_str().into(),
+            default_model: ConfigDefaults::OllamaModel.as_str().into(),
+            alternatives: ConfigDefaults::OllamaAlternatives.as_int()
         }
     }
 }
@@ -69,8 +97,8 @@ impl Default for Paths {
     fn default() -> Self {
         Self {
             item: vec!(Item {
-                path: "$HOME/Documents/my_folder".into(),
-                default_language: "es".into()
+                path: ConfigDefaults::PathItemPath.as_str().into(),
+                default_language: ConfigDefaults::PathItemDefaultLanguage.as_str().into()
             })
         }
     }
@@ -79,8 +107,8 @@ impl Default for Paths {
 impl Default for Item {
     fn default() -> Self {
         Self {
-            path: "$HOME/Documents/my_folder".into(),
-            default_language: "es".into()
+            path: ConfigDefaults::PathItemPath.as_str().into(),
+            default_language: ConfigDefaults::PathItemDefaultLanguage.as_str().into()
         }
     }
 }
@@ -106,7 +134,7 @@ pub fn load_config<R: tauri::Runtime, M: Manager<R>>(app: &M) -> Result<Config, 
     Ok(config)
 }
 
-pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, new_config: Config) -> Result<(), Box<dyn error::Error>> {
+pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, mut new_config: Config) -> Result<(), Box<dyn error::Error>> {
     // Save config: ALWAYS read from `config` parameter
     // Load: fall back to defaults only when necessary (passing the default struct in here)
     let config_dir = app.path().app_config_dir()?;
@@ -115,6 +143,20 @@ pub fn save_config<R: tauri::Runtime, M: Manager<R>>(app: &M, new_config: Config
     }
 
     let config_path = config_dir.join("config.toml");
+
+    // if the default path config is still there and they're adding another
+    if new_config.paths.item.len() > 1 && new_config.paths.item.contains(&Item {
+        path: ConfigDefaults::PathItemPath.as_str().into(),
+        default_language: ConfigDefaults::PathItemDefaultLanguage.as_str().into()
+    }) {
+        // find the index of the default
+        let index = new_config.paths.item.iter().position(|i| i == &Item {
+            path: ConfigDefaults::PathItemPath.as_str().into(),
+            default_language: ConfigDefaults::PathItemDefaultLanguage.as_str().into()
+        }).unwrap();
+
+        new_config.paths.item.remove(index);
+    }
 
     let toml_string = toml::to_string(&new_config)?;
     fs::write(&config_path, toml_string)?;
