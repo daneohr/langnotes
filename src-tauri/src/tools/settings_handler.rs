@@ -204,3 +204,14 @@ pub fn add_path(
 
     Ok(String::from("Add Path: OK"))
 }
+
+#[tauri::command]
+pub fn edit_path(
+    state: tauri::State<ConfigState>,
+    app: tauri::AppHandle,
+    old_path: String,
+    new_path: String,
+    new_lang_code: String
+) -> Result<String, String> {
+    Ok(String::new())
+}
